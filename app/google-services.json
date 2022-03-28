@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "986515650074",
+    "firebase_url": "https://okkk-588f2-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "okkk-588f2",
+    "storage_bucket": "okkk-588f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986515650074:android:14fcedc0de94c2d27a03a3",
+        "android_client_info": {
+          "package_name": "com.example.ok"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "986515650074-bgaoc57tn1nnata5faajvj7m5cjei8rs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1zFshR_ZIsPR9TvIONJ3_Id8VQkMZ2zY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "986515650074-bgaoc57tn1nnata5faajvj7m5cjei8rs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
