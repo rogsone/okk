@@ -8,7 +8,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.ok.databinding.ActivityMainBinding;
+import com.example.ok.utilities.Constants;
+import com.example.ok.utilities.PreferenceManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -16,60 +20,74 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView Emailnazwa;
-
+    private ActivityMainBinding binding;
+    private PreferenceManager preferenceManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        preferenceManager = new PreferenceManager(getApplicationContext());
+        loadUserDetails();
+        getToken();
+        setListeners();
+    }
 
+    private void loadUserDetails(){
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser == null) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-            return;
-        }
-        Emailnazwa = findViewById(R.id.mailnazwa1);
+    }
 
-        Button wylogowanie = findViewById(R.id.wylogowanie);
-        wylogowanie.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logoutUser();
-            }
-        });
+    private void setListeners(){
+        binding.wylogowanie.setOnClickListener(v -> signOut());
+    }
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference reference = database.getReference("users").child(currentUser.getUid());
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                if (user != null) {
-                    Emailnazwa.setText("Nooo" + user.Email);
-                }
-            }
+    private void showToast(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+    private void getToken(){
+        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(this::updateToken);
+    }
 
-            }
+    private void signOut(){
+        showToast("Signing out...");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference documentReference =
+                db.collection(Constants.KEY_COLLECTION_USERS).document(
+                        preferenceManager.getString(Constants.KEY_USER_ID)
+                );
+        HashMap<String, Object> updates = new HashMap<>();
+        updates.put(Constants.KEY_FCM_TOKEN, FieldValue.delete());
+        documentReference.update(updates)
+                .addOnSuccessListener(unused -> {
+                    preferenceManager.clear();
+                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                    finish();
+                })
+                .addOnFailureListener(e -> showToast("Unable to sign out"));
+    }
 
-        });
+    private void updateToken(String token){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference documentReference =
+                db.collection(Constants.KEY_COLLECTION_USERS).document(
+                        preferenceManager.getString(Constants.KEY_USER_ID)
+                );
+        documentReference.update(Constants.KEY_FCM_TOKEN, token)
+                .addOnSuccessListener(unused -> showToast("Token updated succesfully"))
+                .addOnFailureListener(e -> showToast("Unable to update token"));
     }
 
 
-    private void logoutUser() {
-        FirebaseAuth.getInstance().signOut();
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-        finish();
 
-    }
+
 }

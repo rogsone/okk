@@ -1,2 +1,22 @@
-package com.example.ok.FireBase;public class MessagingService {
+package com.example.ok.FireBase;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
+
+public class MessagingService extends FirebaseMessagingService {
+    @Override
+    public void onNewToken(@NonNull String token) {
+        super.onNewToken(token);
+
+    }
+
+    @Override
+    public void onMessageReceived(@NonNull RemoteMessage message) {
+        super.onMessageReceived(message);
+
+    }
 }
